@@ -63,5 +63,32 @@ def get_attendance_summary():
     
     return jsonify(summary_list)
 
+# ✅ Endpoint untuk mengambil data dari tabel attendance berdasarkan lokasi
+@app.route('/api/attendance/<location>', methods=['GET'])
+def get_attendance_by_location(location):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, date, name, time, location FROM attendance WHERE location = %s;", (location,))
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    if rows:
+        attendance_list = [
+            {
+                "id": row[0],
+                "date": row[1].strftime("%Y-%m-%d"),
+                "name": row[2],
+                "time": row[3].strftime("%H:%M:%S"),
+                "location": row[4]
+            }
+            for row in rows
+        ]
+        return jsonify(attendance_list)
+    else:
+        return jsonify({'message': 'No attendance records found for the specified location'}), 404
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
