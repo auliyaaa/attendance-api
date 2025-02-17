@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import psycopg2
 import os
 from dotenv import load_dotenv
@@ -89,6 +89,34 @@ def get_attendance_by_location(location):
         return jsonify(attendance_list)
     else:
         return jsonify({'message': 'No attendance records found for the specified location'}), 404
+
+# ✅ Endpoint untuk menghapus data berdasarkan ID
+@app.route('/api/attendance/delete/', methods=['GET'])
+def delete_attendance():
+    attendance_id = request.args.get('id')  # Ambil ID dari query parameter
+    if not attendance_id:
+        return jsonify({'message': 'ID is required'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Cek apakah data dengan ID tersebut ada
+    cursor.execute("SELECT * FROM attendance WHERE id = %s;", (attendance_id,))
+    record = cursor.fetchone()
+
+    if not record:
+        cursor.close()
+        conn.close()
+        return jsonify({'message': f'No attendance record found with ID {attendance_id}'}), 404
+
+    # Hapus data berdasarkan ID
+    cursor.execute("DELETE FROM attendance WHERE id = %s;", (attendance_id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({'message': f'Attendance record with ID {attendance_id} has been deleted'}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
