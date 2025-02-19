@@ -6,10 +6,17 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-DB_URI = os.getenv("PYTHON_DB_URI")
+# Use localhost when running outside Docker
+DB_URI = os.getenv("PYTHON_DBURI_LOCAL") 
+
 
 # Baca file Excel
-file_path = "/app/seed.xlsx"  # Pastikan file ini ada di dalam container
+import os
+# Get absolute path to seed.xlsx
+file_path = os.path.join(os.path.dirname(__file__), "seed.xlsx")
+
+
+
 df = pd.read_excel(file_path)
 
 # Koneksi ke PostgreSQL

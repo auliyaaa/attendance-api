@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import psycopg2
 import os
 from dotenv import load_dotenv
+from threading import Thread
 
 # Load environment variables from .env
 load_dotenv()
@@ -118,5 +119,9 @@ def delete_attendance():
 
     return jsonify({'message': f'Attendance record with ID {attendance_id} has been deleted'}), 200
 
+def run_on_port(port):
+    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    Thread(target=run_on_port, args=(5000,)).start()
+    Thread(target=run_on_port, args=(9010,)).start()

@@ -1,20 +1,21 @@
 services:
   postgres_db:
     image: postgres:13
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: akucantik
+      POSTGRES_DB: attendance_db_v2
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   php-backend:
     build: ./backend
     env_file:
       - .env
     ports:
-      - "8000:80"
+      - "8001:80"
     volumes:
       - ./backend:/var/www/html
     depends_on:
@@ -23,7 +24,8 @@ services:
   python-service:
     build: ./python-service
     ports:
-      - "5000:5000"
+      - "5001:5000"
+      - "9010:5000"
     env_file:
       - .env
     volumes:
